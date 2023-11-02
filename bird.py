@@ -47,7 +47,7 @@ class Run:
         if bird.dir == 1:
             bird.image.clip_draw(int(bird.frame) * 180, 330, 185, 170, bird.x, bird.y)
         if bird.dir == -1:
-            bird.image.clip_composite_draw(int(bird.frame) * 170, 330, 185, 170, radians(360), 'h', bird.x, bird.y)
+            bird.image.clip_composite_draw(int(bird.frame) * 180, 330, 185, 170, radians(180), 'v', bird.x, bird.y, 150, 150)
 
 
 class StateMachine:
@@ -70,7 +70,7 @@ class StateMachine:
 
 class Bird:
     def __init__(self):
-        self.x, self.y = random.randint(50, 800), 400
+        self.x, self.y = random.randint(50, 1500), random.randint(200, 500)
         self.frame = 0
         self.dir = 1
         self.image = load_image('bird_animation.png')
