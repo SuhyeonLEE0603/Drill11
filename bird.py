@@ -1,10 +1,10 @@
 # 이것은 각 상태들을 객체로 구현한 것임.
 import random
 
-from pico2d import get_time, load_image, load_font, clamp, SDL_KEYDOWN, SDL_KEYUP, SDLK_SPACE, SDLK_LEFT, SDLK_RIGHT
-from ball import Ball, BigBall
+from pico2d import get_time, load_image, load_font
 import game_world
 import game_framework
+from math import *
 
 # Bird Run Speed
 # fill here
@@ -24,22 +24,30 @@ FRAMES_PER_ACTION = 8
 class Run:
 
     @staticmethod
-    def enter(boy, e):
+    def enter(bird, e):
         pass
 
     @staticmethod
-    def exit(boy, e):
+    def exit(bird, e):
         pass
 
     @staticmethod
-    def do(boy):
-        boy.frame = (boy.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 8
-        boy.x += boy.dir * RUN_SPEED_PPS * game_framework.frame_time
-        boy.x = clamp(25, boy.x, 1600 - 25)
+    def do(bird):
+        print('Bird do')
+        bird.frame = (bird.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 5
+        if bird.x >= 0 or bird.x <= 1600:
+            bird.x += bird.face_dir * RUN_SPEED_PPS * game_framework.frame_time
+            bird.face_dir = 1
+        elif bird.x <= 1600 or bird.x >= 0:
+            bird.x -= bird.face_dir * RUN_SPEED_PPS * game_framework.frame_time
+            bird.face_dir = -1
 
     @staticmethod
-    def draw(boy):
-        boy.image.clip_draw(int(boy.frame) * 100, boy.action * 100, 100, 100, boy.x, boy.y)
+    def draw(bird):
+        if bird.face_dir == 1:
+            bird.image.clip_draw(int(bird.frame) * 180, 330, 185, 170, bird.x, bird.y)
+        if bird.face_dir == -1:
+            bird.image.clip_composite_draw(int(bird.frame) * 170, 330, 185, 170, radians(360), 'h', bird.x, bird.y)
 
 
 class StateMachine:
@@ -48,7 +56,7 @@ class StateMachine:
         self.cur_state = Run
 
     def start(self):
-        self.cur_state.enter(self.bird, ('NONE', 0))
+        self.cur_state.enter(self.bird, ('Run', 0))
 
     def update(self):
         self.cur_state.do(self.bird)
@@ -66,7 +74,6 @@ class Bird:
         self.frame = 0
         self.action = 3
         self.face_dir = 1
-        self.dir = 0
         self.image = load_image('bird_animation.png')
         self.state_machine = StateMachine(self)
         self.state_machine.start()
